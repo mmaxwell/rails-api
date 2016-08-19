@@ -1,0 +1,15 @@
+// Place all the styles related to the Items controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.items {
+  border-spacing: 0;
+  border-collapse: collapse;
+  text-align: center;
+  
+  tbody {
+    tr:nth-child(odd) {
+      background-color: #ccc;
+    }
+  }
+}

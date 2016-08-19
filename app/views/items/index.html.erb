@@ -1,0 +1,82 @@
+<h1>Current items</h1>
+
+<%= link_to "Create New Item (Rails)", new_item_path %>
+<br />
+<br />
+
+<%= form_for :item, url: items_path, remote: true, html: { "class" => "add-item" } do | form | %>
+  <h4>Create an item using AJAX</h5>
+  <%= form.label :name %><br />
+  <%= form.text_field :name, id: "newItemName" %>
+  <%= form.submit %>
+<% end %>
+ 
+<br />
+<br />
+
+<button type="button" id="showItems">Fetch All Items</button>
+
+<br />
+<br />
+
+<!-- Rendering it via rails -->
+<!--<table class="items">-->
+<!--  <thead>-->
+<!--    <tr>-->
+<!--      <th colspan="2">Name</th>-->
+<!--    </tr>-->
+<!--  </thead>-->
+ 
+<!--  <tbody class="items">-->
+<!--    <% @items.each do | item | %>-->
+<!--      <tr class="item">-->
+<!--        <td><%= item.name %></td>-->
+<!--        <td><%= link_to "View", item_path(item) %></td>-->
+<!--      </tr>-->
+<!--    <% end %>-->
+<!--  </tbody>-->
+<!--</table>-->
+
+<!-- Render it with AJAX! -->
+<table class="items"></table>
+
+<script>
+$(function () {
+  var items = $(".items"),
+    newItemName = $("#newItemName");
+  
+  function renderItem(item) {
+    var row = $("<tr>"),
+      label = $("<td>", {
+        text: item.name
+      }),
+      linkCell = $("<td>"),
+      link = $("<a>", {
+        href: "/items/" + item.id,
+        text: "View"
+      });
+      
+    linkCell.append(link);
+    row.append(label);
+    row.append(linkCell);
+    
+    items.append(row);
+  }
+  
+  function renderItems() {
+    items.empty();
+    
+    $.get("/items").then(function (items) {
+      items.forEach(renderItem);
+    });
+  }
+  
+  $(".add-item").on("ajax:success", function (event, item) {
+    console.log("Item Added!", item);
+    renderItem(item);
+    newItemName.val("");
+  });
+  
+  $("#showItems").on("click", renderItems);
+});
+</script>
