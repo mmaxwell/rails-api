@@ -4,6 +4,7 @@
 <br />
 <br />
 
+<!-- Creating our form. remote is how we tell rails this is an AJAX request -->
 <%= form_for :item, url: items_path, remote: true, html: { "class" => "add-item" } do | form | %>
   <h4>Create an item using AJAX</h5>
   <%= form.label :name %><br />
@@ -42,41 +43,53 @@
 
 <script>
 $(function () {
+// items:
+//  Container that holds all the items.
   var items = $(".items"),
-    newItemName = $("#newItemName");
+// newItemName:
+//  The input field where the user inputs the new item's name
+    newItemName = $("#newItemName"),
+// itemTemplate:
+//  Template for the item information.
+    itemTemplate = "<tr class='item'><td>{{name}}</td><td><a href='/items/{{id}}'>View</a></td></tr>";
   
-  function renderItem(item) {
-    var row = $("<tr>"),
-      label = $("<td>", {
-        text: item.name
-      }),
-      linkCell = $("<td>"),
-      link = $("<a>", {
-        href: "/items/" + item.id,
-        text: "View"
-      });
-      
-    linkCell.append(link);
-    row.append(label);
-    row.append(linkCell);
-    
-    items.append(row);
+  function renderItem(/*Object*/ item) {
+// summary:
+//  This will create a table row for an item and add it to the DOM.
+// item: Object
+//  JSON object containing at least an ID and name for the item.
+
+// NOTE: This isn't necessarily the cleanest solution. Chaining replaces works, but
+// I think realistically, we would use a more complex replace to fish out the token
+// values and replace them with the properties off the item, but this is much simpler
+// to show connectivity.
+    items.append(itemTemplate.replace("{{name}}", item.name).replace("{{id}}", item.id));
   }
   
   function renderItems() {
+// summary:
+//  Fetches all items from the server and renders them.
+// NOTE: This will empty the existing table of all contents.
     items.empty();
     
+// NOTE: This is an AJAX request  to the server. This is the crux of communication between
+// the server and the client.
+// DEFINE: server is rails, client is JS.
     $.get("/items").then(function (items) {
       items.forEach(renderItem);
     });
   }
   
+// Listen for success on the ajax call to add a new item, and log it, render it, and clear out
+// the input, so the user can add another item.
+// NOTE: It's not necessary to clear out the field. I'm only doing so as a slight UI/UX improvement.
   $(".add-item").on("ajax:success", function (event, item) {
     console.log("Item Added!", item);
     renderItem(item);
     newItemName.val("");
   });
   
+// Reuse our renderItems function when the user clicks the Fetch All Items button.
   $("#showItems").on("click", renderItems);
 });
 </script>
