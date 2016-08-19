@@ -5,7 +5,7 @@
 <br />
 
 <!-- Creating our form. remote is how we tell rails this is an AJAX request -->
-<%= form_for :item, url: items_path, remote: true, html: { "class" => "add-item" } do | form | %>
+<%= form_for :item, url: items_path(:format => :json), remote: true, html: { "class" => "add-item" } do | form | %>
   <h4>Create an item using AJAX</h5>
   <%= form.label :name %><br />
   <%= form.text_field :name, id: "newItemName" %>
@@ -75,7 +75,7 @@ $(function () {
 // NOTE: This is an AJAX request  to the server. This is the crux of communication between
 // the server and the client.
 // DEFINE: server is rails, client is JS.
-    $.get("/items").then(function (items) {
+    $.get("/items.json").then(function (items) {
       items.forEach(renderItem);
     });
   }
